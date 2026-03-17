@@ -16,6 +16,8 @@ log = logging.getLogger("auto_dl")
 
 SEARXNG_URL = os.getenv("SEARXNG_URL", "http://localhost:8888")
 DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "./downloads")
+MAX_RESULTS = int(os.getenv("MAX_RESULTS", "20"))
+DEFAULT_TYPE = os.getenv("DEFAULT_TYPE", "")
 CHUNK = 8192
 
 
@@ -60,7 +62,8 @@ def sanitize_filename(name: str) -> str:
 def download_file(url: str, dest: str) -> str:
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
     try:
-        resp = requests.get(url, stream=True, timeout=30, allow_redirects=True)
+        resp = requests.get(url, stream=True, timeout=30, allow_redirects=True,
+                            headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"})
         resp.raise_for_status()
     except Exception as e:
         raise RuntimeError(f"Download failed: {e}") from e
@@ -78,9 +81,9 @@ def download_file(url: str, dest: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="AutoDL — search and download ebooks via SearXNG")
     parser.add_argument("query", help="Search keyword")
-    parser.add_argument("-t", "--type", default="", help="File type (pdf, txt, epub, etc.)")
+    parser.add_argument("-t", "--type", default=DEFAULT_TYPE, help="File type (pdf, txt, epub, etc.)")
     parser.add_argument("-d", "--domain", default="", help="Restrict to domain")
-    parser.add_argument("-n", "--max", type=int, default=20, help="Max results")
+    parser.add_argument("-n", "--max", type=int, default=MAX_RESULTS, help="Max results")
     parser.add_argument("-o", "--output", default=DOWNLOAD_DIR, help="Output directory")
     parser.add_argument("--list", action="store_true", help="Only list results, don't download")
     parser.add_argument("--json", action="store_true", help="Output results as JSON")
