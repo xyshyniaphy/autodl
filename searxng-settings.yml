@@ -8,6 +8,174 @@ search:
   formats:
     - html
     - json
+  # Don't limit autocomplete
+  autocomplete: ""
+
+engines:
+  # Enable all engines that don't require API keys
+  # General
+  - name: google
+    engine: google
+    shortcut: g
+  - name: duckduckgo
+    engine: duckduckgo
+    shortcut: ddg
+  - name: brave
+    engine: brave
+    shortcut: brv
+  - name: bing
+    engine: bing
+    shortcut: bing
+  - name: startpage
+    engine: startpage
+    shortcut: sp
+  - name: qwant
+    engine: qwant
+    shortcut: qw
+  - name: yandex
+    engine: yandex
+    shortcut: yx
+  - name: yahoo
+    engine: yahoo
+    shortcut: yh
+  - name: mojeek
+    engine: mojeek
+    shortcut: mjk
+  - name: presearch
+    engine: presearch
+    shortcut: ps
+  - name: yep
+    engine: yep
+    shortcut: yep
+  - name: struct
+    engine: struct
+    shortcut: str
+  - name: mwmbl
+    engine: mwmbl
+    shortcut: mwm
+  - name: marginals
+    engine: marginalia
+    shortcut: mg
+  - name: wikipedia
+    engine: wikipedia
+    shortcut: wp
+  - name: wikidata
+    engine: wikidata
+    shortcut: wd
+
+  # Chinese engines
+  - name: baidu
+    engine: baidu
+    shortcut: bd
+  - name: sogou
+    engine: sogou
+    shortcut: sg
+  - name: 360search
+    engine: 360search
+    shortcut: 36s
+  - name: naver
+    engine: naver
+    shortcut: nvr
+
+  # Files
+  - name: zlibrary
+    engine: zlibrary
+    shortcut: zl
+  - name: annas_archive
+    engine: annas_archive
+    shortcut: aa
+  - name: google_scholar
+    engine: google_scholar
+    shortcut: gsch
+  - name: semantic_scholar
+    engine: semantic_scholar
+    shortcut: ss
+  - name: crossref
+    engine: crossref
+    shortcut: cr
+  - name: openlibrary
+    engine: openlibrary
+    shortcut: ol
+  - name: springer
+    engine: springer
+    shortcut: spr
+  - name: pubmed
+    engine: pubmed
+    shortcut: pub
+
+  # Torrents / files
+  - name: piratebay
+    engine: piratebay
+    shortcut: tpb
+  - name: solidtorrents
+    engine: solidtorrents
+    shortcut: st
+  - name: 1337x
+    engine: 1337x
+    shortcut: 1337
+  - name: nyaa
+    engine: nyaa
+    shortcut: ny
+  - name: bt4g
+    engine: bt4g
+    shortcut: bt4g
+
+  # Images
+  - name: google_images
+    engine: google_images
+    shortcut: gimg
+  - name: bing_images
+    engine: bing_images
+    shortcut: bimg
+
+  # Videos
+  - name: youtube
+    engine: youtube_noapi
+    shortcut: yt
+  - name: dailymotion
+    engine: dailymotion
+    shortcut: dm
+  - name: peertube
+    engine: peertube
+    shortcut: ptb
+
+  # News
+  - name: google_news
+    engine: google_news
+    shortcut: gn
+  - name: bing_news
+    engine: bing_news
+    shortcut: bnews
+  - name: yahoo_news
+    engine: yahoo_news
+    shortcut: yhn
+
+  # IT
+  - name: github
+    engine: github
+    shortcut: gh
+  - name: stackoverflow
+    engine: stackexchange
+    shortcut: so
+  - name: docker_hub
+    engine: docker_hub
+    shortcut: dh
+  - name: pypi
+    engine: pypi
+    shortcut: pypi
+
+  # Maps
+  - name: openstreetmap
+    engine: openstreetmap
+    shortcut: osm
+
+  # Music
+  - name: deezer
+    engine: deezer
+    shortcut: dz
+  - name: soundcloud
+    engine: soundcloud
+    shortcut: sc
 
 server:
   port: 8080
