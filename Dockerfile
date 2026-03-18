@@ -1,11 +1,15 @@
 FROM python:3.12-slim
 
 WORKDIR /app
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY auto_dl.py cli.py .
+COPY app.py .
+COPY templates/ templates/
 
 RUN mkdir -p /app/downloads
 
-CMD ["python3", "auto_dl.py"]
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "2", "--threads", "4", "app:app"]

@@ -1,85 +1,74 @@
 # AutoDL — Ebook Downloader
 
-Search and download ebooks (PDF, TXT, EPUB, etc.) via SearXNG.
+Search and download ebooks (PDF, TXT, EPUB, etc.) via SearXNG with a web GUI.
 
 ## Quick Start
 
-### 1. Start SearXNG
-
 ```bash
-docker compose up -d
+cp .env.example .env     # configure port & defaults
+docker compose up -d     # start everything
 ```
 
-SearXNG will be available at `http://localhost:8888`
+Open **http://localhost:8080** in your browser.
 
-### 2. Enable JSON format (first time only)
+That's it — SearXNG + Web GUI + Nginx all on a single port.
 
-```bash
-docker exec autodl-searxng python3 -c "
-from pathlib import Path
-p = Path('/etc/searxng/settings.yml')
-t = p.read_text()
-t = t.replace('formats:\n    - html', 'formats:\n    - html\n    - json')
-p.write_text(t)
-"
-docker compose restart searxng
+## Architecture
+
+```
+                    ┌──────────────────────────┐
+  :8080 ───────────►│  Nginx (reverse proxy)   │
+                    └──────┬──────────┬────────┘
+                           │          │
+                    ┌──────▼──┐  ┌────▼────────┐
+                    │ SearXNG │  │ AutoDL App  │
+                    │ :8080   │  │ (Flask)     │
+                    │ (search)│  │ :8000       │
+                    └─────────┘  │ /api/*      │
+                                 │ /downloads/ │
+                                 └─────────────┘
+                                      │
+                                 downloads/
 ```
 
-### 3. Run
-
-**GUI mode:**
-```bash
-python3 auto_dl.py
-```
-
-**CLI mode:**
-```bash
-# List results only
-python3 cli.py "buddhism" -t pdf --list
-
-# Download all PDF results
-python3 cli.py "buddhism" -t pdf
-
-# Restrict to a domain
-python3 cli.py "buddhism" -t pdf -d archive.org
-
-# JSON output
-python3 cli.py "buddhism" --json
-```
+All services are internal-only — only Nginx is exposed on port 8080.
 
 ## Configuration
 
-Copy `.env.example` to `.env` and edit:
-
-```bash
-cp .env.example .env
-```
-
 | Variable | Default | Description |
 |---|---|---|
-| SEARXNG_URL | http://localhost:8888 | SearXNG instance URL |
-| DOWNLOAD_DIR | ./downloads | Where to save files |
+| `PORT` | 8080 | External port (nginx) |
+| `SEARXNG_URL` | http://searxng:8080 | Internal SearXNG URL |
+| `DOWNLOAD_DIR` | ./downloads | Where files are saved |
+| `MAX_RESULTS` | 20 | Max search results |
+| `DEFAULT_TYPE` | pdf | Default file type filter |
 
-## Usage (GUI)
+## GUI Features
 
-1. Enter a keyword in the search box
-2. Optionally pick a file type (PDF, TXT, EPUB, etc.)
-3. Optionally set a domain filter
-4. Click **Search** to see results
-5. Double-click a result or click **Download All**
-6. Progress bar shows download status
+- 🔍 Search by keyword, file type, domain
+- ☑ Check/uncheck individual results
+- ✅ Select All toggle
+- 📊 File size preview (via HEAD request)
+- ⬇ Download selected files with progress bar
+- 📁 Files saved to timestamped subfolder (`downloads/20260318_090200/`)
 
-## CLI Arguments
+## API Endpoints
 
-| Argument | Description |
+| Endpoint | Description |
 |---|---|
-| `query` | Search keyword |
-| `-t, --type` | File type filter (pdf, txt, epub, etc.) |
-| `-d, --domain` | Restrict results to a domain |
-| `-n, --max` | Max results (default: 20) |
-| `-o, --output` | Output directory |
-| `--list` | List results without downloading |
-| `--json` | Output results as JSON |
+| `GET /` | Web GUI |
+| `GET /api/search?q=…&type=…&domain=…` | Search files |
+| `POST /api/download` | Download a file `{url, title, ext}` |
+| `GET /api/last-folder` | Get last download folder path |
+| `GET /downloads/<path>` | Serve downloaded files |
+
+## Development (without Docker)
+
+```bash
+pip install -r requirements.txt
+# Start SearXNG separately or set SEARXNG_URL
+SEARXNG_URL=http://localhost:8888 python3 app.py
+```
 
 ## License
 

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoDL — Ebook Downloader</title>
+    <style>
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a2e;
+            --surface2: #25253e;
+            --text: #e0e0e0;
+            --text2: #a0a0b0;
+            --accent: #7c5cfc;
+            --accent2: #5a3fd6;
+            --green: #4ade80;
+            --red: #f87171;
+            --orange: #fb923c;
+            --border: #333355;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        h1 span { color: var(--text2); font-size: 0.9rem; font-weight: normal; }
+
+        /* Search bar */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .search-box input, .search-box select {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-box input:focus { border-color: var(--accent); }
+        .search-box input[type="text"] { flex: 1; min-width: 200px; }
+        .search-box select { width: 120px; }
+        .search-box input[type="text"].domain { flex: 0 0 200px; }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: var(--accent2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .actions label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 0.9rem;
+        }
+        .actions input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--accent);
+        }
+        .actions .spacer { flex: 1; }
+
+        /* Results table */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .results-table th {
+            background: var(--surface);
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .results-table th:first-child { width: 40px; text-align: center; }
+        .results-table th:nth-child(2) { width: 55px; text-align: center; }
+        .results-table th:nth-child(3) { width: 80px; text-align: right; }
+        .results-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .results-table td:first-child { text-align: center; }
+        .results-table td:nth-child(2) { text-align: center; color: var(--text2); }
+        .results-table td:nth-child(3) { text-align: right; color: var(--text2); font-size: 0.85rem; }
+        .results-table tr:hover td { background: var(--surface); }
+        .results-table tr.checked td { background: var(--surface2); }
+
+        .ext-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .ext-pdf { background: #ef444433; color: #f87171; }
+        .ext-txt { background: #22c55e33; color: #4ade80; }
+        .ext-epub { background: #3b82f633; color: #60a5fa; }
+        .ext-default { background: #6b728033; color: #9ca3af; }
+
+        .results-wrap {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .title-cell {
+            max-width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .title-cell a {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .title-cell a:hover { color: var(--accent); }
+
+        /* Progress */
+        .progress-wrap { margin-bottom: 12px; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--surface);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        /* Status */
+        .status {
+            color: var(--text2);
+            font-size: 0.85rem;
+            padding: 8px 0;
+        }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text2);
+        }
+        .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+        .count-badge {
+            background: var(--surface);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: var(--text2);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📥 AutoDL <span>Ebook Downloader</span></h1>
+
+    <div class="search-box">
+        <input type="text" id="query" placeholder="Search keywords..." autofocus>
+        <select id="filetype">
+            <option value="">Any type</option>
+            <option value="pdf">PDF</option>
+            <option value="txt">TXT</option>
+            <option value="epub">EPUB</option>
+            <option value="mobi">MOBI</option>
+            <option value="doc">DOC</option>
+            <option value="djvu">DJVU</option>
+        </select>
+        <input type="text" class="domain" id="domain" placeholder="Domain (optional)">
+        <button class="btn" id="searchBtn" onclick="doSearch()">🔍 Search</button>
+    </div>
+
+    <div class="actions" id="actions" style="display:none">
+        <label>
+            <input type="checkbox" id="selectAll" onchange="toggleAll()"> Select All
+        </label>
+        <span class="count-badge" id="countBadge">0 selected</span>
+        <button class="btn" id="dlBtn" onclick="startDownload()">⬇ Download Selected</button>
+        <span class="spacer"></span>
+        <button class="btn btn-outline" onclick="openFolder()">📁 Open Folder</button>
+    </div>
+
+    <div class="results-wrap" id="resultsWrap" style="display:none">
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Ext</th>
+                    <th>Size</th>
+                    <th>Title</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+        </table>
+    </div>
+
+    <div class="empty" id="emptyState">
+        <div class="icon">🔍</div>
+        <p>Search for ebooks to get started</p>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="status" id="status">Ready</div>
+</div>
+
+<script>
+let results = [];
+let checked = new Set();
+let downloading = false;
+
+document.getElementById('query').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+});
+
+function fmtSize(n) {
+    if (!n) return '?';
+    for (const u of ['B','KB','MB','GB']) {
+        if (n < 1024) return n.toFixed(n < 10 ? 1 : 0) + u;
+        n /= 1024;
+    }
+    return n.toFixed(1) + 'TB';
+}
+
+function extClass(ext) {
+    const m = { pdf: 'ext-pdf', txt: 'ext-txt', epub: 'ext-epub' };
+    return m[ext] || 'ext-default';
+}
+
+async function doSearch() {
+    const query = document.getElementById('query').value.trim();
+    if (!query) return;
+    if (downloading) return;
+
+    const ft = document.getElementById('filetype').value;
+    const domain = document.getElementById('domain').value.trim();
+    setStatus('Searching: ' + query + '…');
+
+    try {
+        const resp = await fetch('/api/search?' + new URLSearchParams({ q: query, type: ft, domain }));
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error || 'Search failed');
+        results = data.results || [];
+        checked.clear();
+        renderResults();
+        setStatus('Found ' + results.length + ' results — select files to download');
+    } catch (e) {
+        setStatus('❌ ' + e.message);
+    }
+}
+
+function renderResults() {
+    const body = document.getElementById('resultsBody');
+    const wrap = document.getElementById('resultsWrap');
+    const actions = document.getElementById('actions');
+    const empty = document.getElementById('emptyState');
+
+    if (!results.length) {
+        wrap.style.display = 'none';
+        actions.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    wrap.style.display = 'block';
+    actions.style.display = 'flex';
+
+    body.innerHTML = results.map((r, i) => `
+        <tr id="row-${i}" class="${checked.has(i) ? 'checked' : ''}" onclick="toggleRow(${i})">
+            <td>${checked.has(i) ? '☑' : '☐'}</td>
+            <td><span class="ext-badge ${extClass(r.ext)}">${r.ext.toUpperCase()}</span></td>
+            <td>${fmtSize(r.size)}</td>
+            <td class="title-cell"><a href="${escHtml(r.url)}" target="_blank" onclick="event.stopPropagation()">${escHtml(r.title || 'untitled')}</a></td>
+        </tr>
+    `).join('');
+
+    updateCount();
+}
+
+function toggleRow(i) {
+    if (checked.has(i)) checked.delete(i);
+    else checked.add(i);
+    const row = document.getElementById('row-' + i);
+    row.className = checked.has(i) ? 'checked' : '';
+    row.children[0].textContent = checked.has(i) ? '☑' : '☐';
+    updateCount();
+}
+
+function toggleAll() {
+    const sa = document.getElementById('selectAll').checked;
+    checked.clear();
+    if (sa) results.forEach((_, i) => checked.add(i));
+    renderResults();
+}
+
+function updateCount() {
+    document.getElementById('countBadge').textContent = checked.size + ' selected';
+    document.getElementById('selectAll').checked = checked.size === results.length && results.length > 0;
+}
+
+async function startDownload() {
+    if (!checked.size || downloading) return;
+    downloading = true;
+    document.getElementById('dlBtn').disabled = true;
+    document.getElementById('progressWrap').style.display = 'block';
+    setProgress(0);
+
+    const indices = Array.from(checked).sort((a, b) => a - b);
+
+    try {
+        for (let i = 0; i < indices.length; i++) {
+            const r = results[indices[i]];
+            setStatus(`[${i+1}/${indices.length}] Downloading: ${r.title || r.url}`);
+            const resp = await fetch('/api/download', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: r.url, title: r.title, ext: r.ext })
+            });
+            const data = await resp.json();
+            if (!data.ok) {
+                setStatus('❌ [' + (i+1) + '/' + indices.length + '] Failed: ' + (data.error || 'unknown'));
+            }
+            setProgress(((i + 1) / indices.length) * 100);
+        }
+        const folder = await (await fetch('/api/last-folder')).json();
+        setStatus('✅ Done — ' + indices.length + ' files saved to ' + (folder.folder || 'downloads'));
+    } catch (e) {
+        setStatus('❌ ' + e.message);
+    } finally {
+        downloading = false;
+        document.getElementById('dlBtn').disabled = false;
+    }
+}
+
+function setProgress(pct) {
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function setStatus(msg) {
+    document.getElementById('status').textContent = msg;
+}
+
+function openFolder() {
+    window.open('/api/open-folder', '_blank');
+}
+
+function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+</script>
+</body>
+</html>

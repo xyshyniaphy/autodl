@@ -1,16 +1,37 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: autodl-nginx
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - searxng
+      - auto_dl_app
+
   searxng:
     image: searxng/searxng:latest
     container_name: autodl-searxng
     restart: unless-stopped
-    ports:
-      - "8888:8080"
+    expose:
+      - "8080"
     volumes:
       - ./searxng-settings.yml:/etc/searxng/settings.yml:ro
       - searxng-cache:/var/cache/searxng
+
+  auto_dl_app:
+    build: .
+    container_name: autodl-app
+    restart: unless-stopped
+    expose:
+      - "8000"
+    volumes:
+      - ./downloads:/app/downloads
     environment:
-      - SEARXNG_BASE_URL=http://localhost:8888/
-      - SEARXNG_SECRET=${SEARXNG_SECRET:-changeme}
+      - SEARXNG_URL=http://searxng:8080
+      - DOWNLOAD_DIR=/app/downloads
 
 volumes:
   searxng-cache:
