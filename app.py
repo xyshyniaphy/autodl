@@ -3,6 +3,8 @@ import re
 import json
 import logging
 import threading
+import time
+import uuid
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
@@ -24,7 +26,17 @@ DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", "./downloads")
 MAX_RESULTS = int(os.getenv("MAX_RESULTS", "20"))
 DEFAULT_TYPE = os.getenv("DEFAULT_TYPE", "")
 
+# ---------------------------------------------------------------------------
+# State
+# ---------------------------------------------------------------------------
+
 _last_folder = {"path": ""}
+_tasks = {}  # task_id -> {"status", "total", "done", "current", "errors", "folder"}
+
+
+def _task_key():
+    return str(uuid.uuid4())[:8]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -38,23 +50,19 @@ def sanitize_filename(name: str) -> str:
     return name.strip(". ")[:200]
 
 
-def fmt_size(n: int) -> str:
-    if not n:
-        return 0
-    for unit in ("B", "KB", "MB", "GB"):
-        if n < 1024:
-            return f"{n:.0f}{unit}"
-        n /= 1024
-    return f"{n:.1f}TB"
-
-
 # ---------------------------------------------------------------------------
-# SearXNG search
+# SearXNG search — supports paging
 # ---------------------------------------------------------------------------
 
 
-def search_files(query: str, filetype: str = "", domain: str = "", max_results: int = 20) -> list[dict]:
-    params = {"q": query, "format": "json", "categories": "files"}
+def search_files(query: str, filetype: str = "", domain: str = "",
+                 max_results: int = 20, pageno: int = 1) -> list[dict]:
+    params = {
+        "q": query,
+        "format": "json",
+        "categories": "files",
+        "pageno": pageno,
+    }
     if filetype:
         params["q"] += f" filetype:{filetype}"
     if domain:
@@ -74,10 +82,10 @@ def search_files(query: str, filetype: str = "", domain: str = "", max_results: 
         if not url:
             continue
         ext = Path(urlparse(url).path).suffix.lower().lstrip(".")
-        # Get file size
         size = 0
         try:
-            head = requests.head(url, timeout=8, allow_redirects=True, headers={"User-Agent": USER_AGENT})
+            head = requests.head(url, timeout=8, allow_redirects=True,
+                                 headers={"User-Agent": USER_AGENT})
             size = int(head.headers.get("content-length", 0))
         except Exception:
             pass
@@ -97,13 +105,48 @@ def search_files(query: str, filetype: str = "", domain: str = "", max_results: 
 
 def download_one(url: str, dest: str) -> str:
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
-    resp = requests.get(url, stream=True, timeout=60, allow_redirects=True,
+    resp = requests.get(url, stream=True, timeout=120, allow_redirects=True,
                         headers={"User-Agent": USER_AGENT})
     resp.raise_for_status()
     with open(dest, "wb") as f:
         for chunk in resp.iter_content(chunk_size=8192):
             f.write(chunk)
     return dest
+
+
+def _bg_download_all(task_id: str, items: list[dict]):
+    """Background worker: download all items, update task state."""
+    task = _tasks[task_id]
+    task["status"] = "running"
+    task["done"] = 0
+    task["errors"] = []
+
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    folder = os.path.join(DOWNLOAD_DIR, ts)
+    Path(folder).mkdir(parents=True, exist_ok=True)
+    task["folder"] = folder
+    _last_folder["path"] = folder
+
+    for i, item in enumerate(items):
+        title = sanitize_filename(item.get("title", f"file_{i}"))
+        ext = item.get("ext", "bin")
+        url = item.get("url", "")
+        dest = os.path.join(folder, f"{title}.{ext}")
+
+        task["current"] = f"{i+1}/{task['total']}: {title}"
+        task["done"] = i
+
+        if os.path.exists(dest):
+            continue
+        try:
+            download_one(url, dest)
+        except Exception as e:
+            log.error("Download failed: %s — %s", url, e)
+            task["errors"].append({"url": url, "error": str(e)})
+
+    task["done"] = task["total"]
+    task["status"] = "done"
+    task["current"] = f"Complete — {len(task['errors'])} errors"
 
 
 # ---------------------------------------------------------------------------
@@ -123,12 +166,18 @@ def api_search():
         return jsonify({"ok": False, "error": "Empty query"})
     ft = request.args.get("type", "")
     domain = request.args.get("domain", "")
-    results = search_files(q, filetype=ft, domain=domain, max_results=MAX_RESULTS)
-    return jsonify({"ok": True, "results": results})
+    pageno = int(request.args.get("page", 1))
+    per_page = 20
+    results = search_files(q, filetype=ft, domain=domain,
+                           max_results=per_page, pageno=pageno)
+    # Tell frontend if there might be more
+    has_more = len(results) >= per_page
+    return jsonify({"ok": True, "results": results, "page": pageno, "has_more": has_more})
 
 
 @app.route("/api/download", methods=["POST"])
 def api_download():
+    """Download a single file."""
     data = request.get_json()
     url = data.get("url", "")
     title = sanitize_filename(data.get("title", "download"))
@@ -153,21 +202,39 @@ def api_download():
         return jsonify({"ok": False, "error": str(e)})
 
 
+@app.route("/api/download-all", methods=["POST"])
+def api_download_all():
+    """Start a background download task for multiple files."""
+    data = request.get_json() or {}
+    items = data.get("items", [])
+    if not items:
+        return jsonify({"ok": False, "error": "No items"})
+
+    tid = _task_key()
+    _tasks[tid] = {
+        "status": "starting",
+        "total": len(items),
+        "done": 0,
+        "current": "",
+        "errors": [],
+        "folder": "",
+    }
+    t = threading.Thread(target=_bg_download_all, args=(tid, items), daemon=True)
+    t.start()
+    return jsonify({"ok": True, "task_id": tid})
+
+
+@app.route("/api/task/<task_id>")
+def api_task_status(task_id):
+    task = _tasks.get(task_id)
+    if not task:
+        return jsonify({"ok": False, "error": "Unknown task"})
+    return jsonify({"ok": True, **task})
+
+
 @app.route("/api/last-folder")
 def api_last_folder():
     return jsonify({"folder": _last_folder.get("path", "")})
-
-
-@app.route("/api/open-folder")
-def api_open_folder():
-    folder = _last_folder.get("path", DOWNLOAD_DIR)
-    Path(folder).mkdir(parents=True, exist_ok=True)
-    return jsonify({"folder": folder})
-
-
-@app.route("/downloads/<path:filename>")
-def serve_download(filename):
-    return send_from_directory(DOWNLOAD_DIR, filename, as_attachment=True)
 
 
 # ---------------------------------------------------------------------------

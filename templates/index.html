@@ -27,180 +27,145 @@
         }
         .container { max-width: 960px; margin: 0 auto; padding: 20px; }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: var(--accent);
-        }
+        h1 { font-size: 1.8rem; margin-bottom: 20px; color: var(--accent); }
         h1 span { color: var(--text2); font-size: 0.9rem; font-weight: normal; }
 
         /* Search bar */
         .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+            display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
         }
         .search-box input, .search-box select {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 10px 14px; border-radius: 8px;
+            font-size: 0.95rem; outline: none; transition: border-color 0.2s;
         }
         .search-box input:focus { border-color: var(--accent); }
         .search-box input[type="text"] { flex: 1; min-width: 200px; }
         .search-box select { width: 120px; }
-        .search-box input[type="text"].domain { flex: 0 0 200px; }
+        .search-box input.domain { flex: 0 0 200px; }
 
         /* Buttons */
         .btn {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: var(--accent); color: #fff; border: none;
+            padding: 10px 20px; border-radius: 8px; font-size: 0.95rem;
+            cursor: pointer; transition: background 0.2s; white-space: nowrap;
         }
         .btn:hover { background: var(--accent2); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-green { background: #16a34a; }
+        .btn-green:hover { background: #15803d; }
         .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
+            background: transparent; border: 1px solid var(--border); color: var(--text);
         }
         .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
 
         .actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            align-items: center;
+            display: flex; gap: 10px; margin-bottom: 16px;
+            flex-wrap: wrap; align-items: center;
         }
         .actions label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            color: var(--text2);
-            font-size: 0.9rem;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer; color: var(--text2); font-size: 0.9rem;
         }
         .actions input[type="checkbox"] {
-            width: 16px; height: 16px;
-            accent-color: var(--accent);
+            width: 16px; height: 16px; accent-color: var(--accent);
         }
         .actions .spacer { flex: 1; }
 
-        /* Results table */
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
+        .badge {
+            background: var(--surface); padding: 4px 10px;
+            border-radius: 12px; font-size: 0.8rem; color: var(--text2);
         }
+
+        /* Results */
+        .results-wrap {
+            max-height: 55vh; overflow-y: auto;
+            border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 16px; scroll-behavior: smooth;
+        }
+        .results-table { width: 100%; border-collapse: collapse; }
         .results-table th {
-            background: var(--surface);
-            padding: 10px 12px;
-            text-align: left;
-            font-size: 0.85rem;
-            color: var(--text2);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 1;
+            background: var(--surface); padding: 10px 12px; text-align: left;
+            font-size: 0.85rem; color: var(--text2); text-transform: uppercase;
+            letter-spacing: 0.05em; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1;
         }
         .results-table th:first-child { width: 40px; text-align: center; }
         .results-table th:nth-child(2) { width: 55px; text-align: center; }
         .results-table th:nth-child(3) { width: 80px; text-align: right; }
+        .results-table th:nth-child(4) { width: 60px; text-align: center; }
         .results-table td {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
+            padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem;
         }
         .results-table td:first-child { text-align: center; }
         .results-table td:nth-child(2) { text-align: center; color: var(--text2); }
         .results-table td:nth-child(3) { text-align: right; color: var(--text2); font-size: 0.85rem; }
+        .results-table td:nth-child(4) { text-align: center; }
         .results-table tr:hover td { background: var(--surface); }
         .results-table tr.checked td { background: var(--surface2); }
 
         .ext-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
+            display: inline-block; padding: 2px 8px; border-radius: 4px;
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
         }
         .ext-pdf { background: #ef444433; color: #f87171; }
         .ext-txt { background: #22c55e33; color: #4ade80; }
         .ext-epub { background: #3b82f633; color: #60a5fa; }
+        .ext-djvu { background: #a855f733; color: #c084fc; }
         .ext-default { background: #6b728033; color: #9ca3af; }
 
-        .results-wrap {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-
         .title-cell {
-            max-width: 350px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            max-width: 400px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
         }
-        .title-cell a {
-            color: var(--text);
-            text-decoration: none;
-        }
+        .title-cell a { color: var(--text); text-decoration: none; }
         .title-cell a:hover { color: var(--accent); }
+
+        .status-badge {
+            display: inline-block; font-size: 0.7rem; padding: 1px 6px;
+            border-radius: 4px; font-weight: 600;
+        }
+        .status-pending { background: #6b728033; color: #9ca3af; }
+        .status-done { background: #22c55e33; color: #4ade80; }
+        .status-fail { background: #ef444433; color: #f87171; }
+        .status-active { background: #3b82f633; color: #60a5fa; animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+
+        /* Spinner */
+        .loader {
+            text-align: center; padding: 20px; color: var(--text2); font-size: 0.9rem;
+        }
+        .loader .spinner {
+            display: inline-block; width: 20px; height: 20px;
+            border: 2px solid var(--border); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.6s linear infinite;
+            margin-right: 8px; vertical-align: middle;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Progress */
         .progress-wrap { margin-bottom: 12px; }
         .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--surface);
-            border-radius: 4px;
-            overflow: hidden;
+            width: 100%; height: 8px; background: var(--surface);
+            border-radius: 4px; overflow: hidden;
         }
         .progress-fill {
-            height: 100%;
+            height: 100%; border-radius: 4px; transition: width 0.5s ease; width: 0%;
             background: linear-gradient(90deg, var(--accent), var(--green));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-            width: 0%;
+        }
+        .progress-info {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 4px; font-size: 0.8rem; color: var(--text2);
         }
 
-        /* Status */
-        .status {
-            color: var(--text2);
-            font-size: 0.85rem;
-            padding: 8px 0;
-        }
+        /* Status bar */
+        .status { color: var(--text2); font-size: 0.85rem; padding: 8px 0; }
+        .status.error { color: var(--red); }
+        .status.success { color: var(--green); }
 
         /* Empty state */
-        .empty {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text2);
-        }
+        .empty { text-align: center; padding: 60px 20px; color: var(--text2); }
         .empty .icon { font-size: 3rem; margin-bottom: 12px; }
-
-        .count-badge {
-            background: var(--surface);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: var(--text2);
-        }
     </style>
 </head>
 <body>
@@ -226,10 +191,18 @@
         <label>
             <input type="checkbox" id="selectAll" onchange="toggleAll()"> Select All
         </label>
-        <span class="count-badge" id="countBadge">0 selected</span>
-        <button class="btn" id="dlBtn" onclick="startDownload()">⬇ Download Selected</button>
+        <span class="badge" id="countBadge">0 selected</span>
+        <button class="btn btn-green" id="dlAllBtn" onclick="downloadAll()">⬇ Download All</button>
         <span class="spacer"></span>
-        <button class="btn btn-outline" onclick="openFolder()">📁 Open Folder</button>
+        <button class="btn btn-outline" onclick="clearSelection()">✖ Clear</button>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-info">
+            <span id="progressText">Starting…</span>
+            <span id="progressPct">0%</span>
+        </div>
     </div>
 
     <div class="results-wrap" id="resultsWrap" style="display:none">
@@ -239,11 +212,15 @@
                     <th></th>
                     <th>Ext</th>
                     <th>Size</th>
+                    <th>Status</th>
                     <th>Title</th>
                 </tr>
             </thead>
             <tbody id="resultsBody"></tbody>
         </table>
+        <div class="loader" id="scrollLoader" style="display:none">
+            <span class="spinner"></span>Loading more…
+        </div>
     </div>
 
     <div class="empty" id="emptyState">
@@ -251,21 +228,291 @@
         <p>Search for ebooks to get started</p>
     </div>
 
-    <div class="progress-wrap" id="progressWrap" style="display:none">
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    </div>
-
     <div class="status" id="status">Ready</div>
 </div>
 
 <script>
+// ---- State ----
 let results = [];
 let checked = new Set();
-let downloading = false;
+let currentPage = 0;
+let hasMore = false;
+let loading = false;
+let currentQuery = '';
+let currentType = '';
+let currentDomain = '';
+let activeTask = null;
+let pollingInterval = null;
+let dlStatus = {};  // url -> 'pending'|'active'|'done'|'fail'
 
+// ---- Search ----
 document.getElementById('query').addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
 });
+
+async function doSearch() {
+    const query = document.getElementById('query').value.trim();
+    if (!query) return;
+    if (loading) return;
+
+    currentQuery = query;
+    currentType = document.getElementById('filetype').value;
+    currentDomain = document.getElementById('domain').value.trim();
+    results = [];
+    checked.clear();
+    currentPage = 0;
+    hasMore = false;
+    dlStatus = {};
+    document.getElementById('resultsBody').innerHTML = '';
+    hideProgress();
+
+    await loadMore(true);
+}
+
+async function loadMore(reset = false) {
+    if (loading || !hasMore && !reset) return;
+    loading = true;
+    if (reset) currentPage = 0;
+    currentPage++;
+
+    const loader = document.getElementById('scrollLoader');
+    loader.style.display = 'block';
+
+    try {
+        const resp = await fetch('/api/search?' + new URLSearchParams({
+            q: currentQuery, type: currentType,
+            domain: currentDomain, page: currentPage
+        }));
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error || 'Search failed');
+
+        const newResults = data.results || [];
+        const startIdx = results.length;
+        results.push(...newResults);
+        hasMore = data.has_more;
+
+        appendRows(newResults, startIdx);
+        showUI(true);
+
+        if (reset) {
+            setStatus(`Found ${results.length} results${hasMore ? '…' : ''}`);
+        } else {
+            setStatus(`${results.length} results loaded`);
+        }
+    } catch (e) {
+        setStatus('❌ ' + e.message);
+    } finally {
+        loading = false;
+        loader.style.display = 'none';
+    }
+}
+
+// ---- Infinite scroll ----
+document.getElementById('resultsWrap').addEventListener('scroll', function() {
+    const { scrollTop, scrollHeight, clientHeight } = this;
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMore();
+    }
+});
+
+// ---- Render ----
+function appendRows(items, startIdx) {
+    const body = document.getElementById('resultsBody');
+    items.forEach((r, i) => {
+        const idx = startIdx + i;
+        dlStatus[r.url] = dlStatus[r.url] || 'pending';
+        const tr = document.createElement('tr');
+        tr.id = 'row-' + idx;
+        tr.onclick = () => toggleRow(idx);
+        tr.innerHTML = `
+            <td>${checked.has(idx) ? '☑' : '☐'}</td>
+            <td><span class="ext-badge ${extClass(r.ext)}">${esc(r.ext).toUpperCase()}</span></td>
+            <td>${fmtSize(r.size)}</td>
+            <td>${statusBadge(r.url)}</td>
+            <td class="title-cell"><a href="${esc(r.url)}" target="_blank" onclick="event.stopPropagation()">${esc(r.title || 'untitled')}</a></td>
+        `;
+        body.appendChild(tr);
+    });
+    updateCount();
+}
+
+function statusBadge(url) {
+    const s = dlStatus[url] || 'pending';
+    const cls = { pending: 'status-pending', active: 'status-active', done: 'status-done', fail: 'status-fail' };
+    const txt = { pending: '', active: '⬇', done: '✓', fail: '✗' };
+    return `<span class="status-badge ${cls[s]}">${txt[s]}</span>`;
+}
+
+function updateRowStatus(url, status) {
+    dlStatus[url] = status;
+    const idx = results.findIndex(r => r.url === url);
+    if (idx >= 0) {
+        const row = document.getElementById('row-' + idx);
+        if (row) {
+            const badge = row.querySelector('.status-badge');
+            if (badge) badge.outerHTML = statusBadge(url);
+        }
+    }
+}
+
+function showUI(show) {
+    document.getElementById('resultsWrap').style.display = show ? 'block' : 'none';
+    document.getElementById('actions').style.display = show ? 'flex' : 'none';
+    document.getElementById('emptyState').style.display = show ? 'none' : 'block';
+}
+
+// ---- Checkbox ----
+function toggleRow(idx) {
+    if (checked.has(idx)) checked.delete(idx);
+    else checked.add(idx);
+    const row = document.getElementById('row-' + idx);
+    row.className = checked.has(idx) ? 'checked' : '';
+    row.children[0].textContent = checked.has(idx) ? '☑' : '☐';
+    updateCount();
+}
+
+function toggleAll() {
+    const sa = document.getElementById('selectAll').checked;
+    checked.clear();
+    if (sa) results.forEach((_, i) => checked.add(i));
+    document.querySelectorAll('#resultsBody tr').forEach((row, i) => {
+        row.className = checked.has(i) ? 'checked' : '';
+        row.children[0].textContent = checked.has(i) ? '☑' : '☐';
+    });
+    updateCount();
+}
+
+function clearSelection() {
+    checked.clear();
+    document.getElementById('selectAll').checked = false;
+    document.querySelectorAll('#resultsBody tr').forEach(row => {
+        row.className = '';
+        row.children[0].textContent = '☐';
+    });
+    updateCount();
+}
+
+function updateCount() {
+    document.getElementById('countBadge').textContent = checked.size + ' / ' + results.length + ' selected';
+    document.getElementById('selectAll').checked =
+        checked.size === results.length && results.length > 0;
+}
+
+// ---- Download All (one-click background) ----
+async function downloadAll() {
+    if (activeTask) {
+        // Already running — just show progress
+        return;
+    }
+
+    // Select all if nothing selected
+    if (checked.size === 0) {
+        document.getElementById('selectAll').checked = true;
+        toggleAll();
+    }
+
+    const items = Array.from(checked).sort((a, b) => a - b).map(i => results[i]);
+    if (!items.length) return;
+
+    showProgress();
+    document.getElementById('dlAllBtn').disabled = true;
+    setProgress(0, `Starting ${items.length} downloads…`);
+
+    try {
+        const resp = await fetch('/api/download-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items })
+        });
+        const data = await resp.json();
+        if (!data.ok) throw new Error(data.error || 'Failed to start');
+
+        activeTask = data.task_id;
+        // Set all selected items to active
+        items.forEach(r => updateRowStatus(r.url, 'active'));
+
+        // Poll for progress
+        if (pollingInterval) clearInterval(pollingInterval);
+        pollingInterval = setInterval(pollTask, 1000);
+    } catch (e) {
+        hideProgress();
+        document.getElementById('dlAllBtn').disabled = false;
+        setStatus('❌ ' + e.message);
+    }
+}
+
+async function pollTask() {
+    if (!activeTask) return;
+    try {
+        const resp = await fetch('/api/task/' + activeTask);
+        const data = await resp.json();
+        if (!data.ok) { stopPolling(); return; }
+
+        const pct = data.total > 0 ? Math.round((data.done / data.total) * 100) : 0;
+        setProgress(pct, data.current || '');
+
+        // Mark items as done
+        const folderItems = getCheckedItems();
+        folderItems.forEach((item, i) => {
+            if (i < data.done) {
+                // Check if it was in errors
+                const errored = data.errors && data.errors.some(e => e.url === item.url);
+                updateRowStatus(item.url, errored ? 'fail' : 'done');
+            }
+        });
+
+        if (data.status === 'done') {
+            stopPolling();
+            setProgress(100, 'Complete!');
+            const errCount = data.errors ? data.errors.length : 0;
+            if (errCount === 0) {
+                setStatus(`✅ All ${data.total} files downloaded to ${data.folder || 'downloads'}`);
+            } else {
+                setStatus(`⚠️ ${data.total - errCount}/${data.total} downloaded, ${errCount} failed — ${data.folder}`);
+            }
+            // Reset all to done
+            getCheckedItems().forEach(r => {
+                const errored = data.errors && data.errors.some(e => e.url === r.url);
+                updateRowStatus(r.url, errored ? 'fail' : 'done');
+            });
+        }
+    } catch (e) {
+        // silently retry
+    }
+}
+
+function stopPolling() {
+    if (pollingInterval) clearInterval(pollingInterval);
+    pollingInterval = null;
+    activeTask = null;
+    document.getElementById('dlAllBtn').disabled = false;
+}
+
+function getCheckedItems() {
+    return Array.from(checked).sort((a, b) => a - b).map(i => results[i]);
+}
+
+// ---- Progress UI ----
+function showProgress() {
+    document.getElementById('progressWrap').style.display = 'block';
+}
+function hideProgress() {
+    document.getElementById('progressWrap').style.display = 'none';
+}
+function setProgress(pct, text) {
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = text || '';
+    document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ---- Utils ----
+function setStatus(msg) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status' +
+        (msg.startsWith('❌') ? ' error' : '') +
+        (msg.startsWith('✅') ? ' success' : '');
+}
 
 function fmtSize(n) {
     if (!n) return '?';
@@ -277,129 +524,11 @@ function fmtSize(n) {
 }
 
 function extClass(ext) {
-    const m = { pdf: 'ext-pdf', txt: 'ext-txt', epub: 'ext-epub' };
+    const m = { pdf: 'ext-pdf', txt: 'ext-txt', epub: 'ext-epub', djvu: 'ext-djvu' };
     return m[ext] || 'ext-default';
 }
 
-async function doSearch() {
-    const query = document.getElementById('query').value.trim();
-    if (!query) return;
-    if (downloading) return;
-
-    const ft = document.getElementById('filetype').value;
-    const domain = document.getElementById('domain').value.trim();
-    setStatus('Searching: ' + query + '…');
-
-    try {
-        const resp = await fetch('/api/search?' + new URLSearchParams({ q: query, type: ft, domain }));
-        const data = await resp.json();
-        if (!data.ok) throw new Error(data.error || 'Search failed');
-        results = data.results || [];
-        checked.clear();
-        renderResults();
-        setStatus('Found ' + results.length + ' results — select files to download');
-    } catch (e) {
-        setStatus('❌ ' + e.message);
-    }
-}
-
-function renderResults() {
-    const body = document.getElementById('resultsBody');
-    const wrap = document.getElementById('resultsWrap');
-    const actions = document.getElementById('actions');
-    const empty = document.getElementById('emptyState');
-
-    if (!results.length) {
-        wrap.style.display = 'none';
-        actions.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-    }
-
-    empty.style.display = 'none';
-    wrap.style.display = 'block';
-    actions.style.display = 'flex';
-
-    body.innerHTML = results.map((r, i) => `
-        <tr id="row-${i}" class="${checked.has(i) ? 'checked' : ''}" onclick="toggleRow(${i})">
-            <td>${checked.has(i) ? '☑' : '☐'}</td>
-            <td><span class="ext-badge ${extClass(r.ext)}">${r.ext.toUpperCase()}</span></td>
-            <td>${fmtSize(r.size)}</td>
-            <td class="title-cell"><a href="${escHtml(r.url)}" target="_blank" onclick="event.stopPropagation()">${escHtml(r.title || 'untitled')}</a></td>
-        </tr>
-    `).join('');
-
-    updateCount();
-}
-
-function toggleRow(i) {
-    if (checked.has(i)) checked.delete(i);
-    else checked.add(i);
-    const row = document.getElementById('row-' + i);
-    row.className = checked.has(i) ? 'checked' : '';
-    row.children[0].textContent = checked.has(i) ? '☑' : '☐';
-    updateCount();
-}
-
-function toggleAll() {
-    const sa = document.getElementById('selectAll').checked;
-    checked.clear();
-    if (sa) results.forEach((_, i) => checked.add(i));
-    renderResults();
-}
-
-function updateCount() {
-    document.getElementById('countBadge').textContent = checked.size + ' selected';
-    document.getElementById('selectAll').checked = checked.size === results.length && results.length > 0;
-}
-
-async function startDownload() {
-    if (!checked.size || downloading) return;
-    downloading = true;
-    document.getElementById('dlBtn').disabled = true;
-    document.getElementById('progressWrap').style.display = 'block';
-    setProgress(0);
-
-    const indices = Array.from(checked).sort((a, b) => a - b);
-
-    try {
-        for (let i = 0; i < indices.length; i++) {
-            const r = results[indices[i]];
-            setStatus(`[${i+1}/${indices.length}] Downloading: ${r.title || r.url}`);
-            const resp = await fetch('/api/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: r.url, title: r.title, ext: r.ext })
-            });
-            const data = await resp.json();
-            if (!data.ok) {
-                setStatus('❌ [' + (i+1) + '/' + indices.length + '] Failed: ' + (data.error || 'unknown'));
-            }
-            setProgress(((i + 1) / indices.length) * 100);
-        }
-        const folder = await (await fetch('/api/last-folder')).json();
-        setStatus('✅ Done — ' + indices.length + ' files saved to ' + (folder.folder || 'downloads'));
-    } catch (e) {
-        setStatus('❌ ' + e.message);
-    } finally {
-        downloading = false;
-        document.getElementById('dlBtn').disabled = false;
-    }
-}
-
-function setProgress(pct) {
-    document.getElementById('progressFill').style.width = pct + '%';
-}
-
-function setStatus(msg) {
-    document.getElementById('status').textContent = msg;
-}
-
-function openFolder() {
-    window.open('/api/open-folder', '_blank');
-}
-
-function escHtml(s) {
+function esc(s) {
     const d = document.createElement('div');
     d.textContent = s;
     return d.innerHTML;
